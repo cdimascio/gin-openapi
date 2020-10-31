@@ -1,0 +1,58 @@
+openapi: '3.0.2'
+info:
+  version: 1.0.0
+  title: Path Level Parameters
+  description: Path Level Parameters Test
+
+servers:
+  - url: /v1
+
+paths:
+  /ping:
+    # parameters:
+    #   - $ref: '#/components/parameters/pathLevelParameter'
+    get:
+      # parameters:
+      #   - $ref: '#/components/parameters/operationLevelParameter'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pong'
+        '400':
+          description: Bad Request
+    post:
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Ping'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pong'
+        '400':
+          description: Bad Request
+
+components:
+  schemas:
+    Ping:
+      type: object
+      properties:
+        id:
+          type: string
+      required:
+        - id
+    Pong:
+      type: object
+      properties:
+        id:
+          type: string
+      required:
+        - id

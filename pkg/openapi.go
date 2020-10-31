@@ -1,5 +1,6 @@
 package openapi
 
+import "C"
 import (
 	"context"
 	"encoding/json"
@@ -22,9 +23,9 @@ func ValidateRequests(path string) gin.HandlerFunc {
 		route, pathParams, err := spec.FindRoute(httpReq.Method, httpReq.URL)
 
 		if err != nil {
-			c.JSON(400, gin.H{
-				"message": err.Error(),
-			})
+			errorEncoder.Encode(c, err, c.Writer)
+			c.Abort()
+			return
 		}
 
 		requestValidationInput := &openapi3filter.RequestValidationInput{
@@ -36,9 +37,18 @@ func ValidateRequests(path string) gin.HandlerFunc {
 		if err := openapi3filter.ValidateRequest(c.Request.Context(), requestValidationInput); err != nil {
 			errorEncoder.Encode(c, err, c.Writer)
 			c.Abort()
+			return
 		}
 		c.Next()
 	}
+}
+
+func statusCode(err error) int {
+	code := http.StatusInternalServerError
+	if sc, ok := err.(openapi3filter.StatusCoder); ok {
+		code = sc.StatusCode()
+	}
+	return code
 }
 
 func errorEncoder(ctx context.Context, err error, w http.ResponseWriter) {
@@ -49,10 +59,7 @@ func errorEncoder(ctx context.Context, err error, w http.ResponseWriter) {
 			}
 		}
 	}
-	code := http.StatusInternalServerError
-	if sc, ok := err.(openapi3filter.StatusCoder); ok {
-		code = sc.StatusCode()
-	}
+	code := statusCode(err)
 
 	w.WriteHeader(code)
 
@@ -61,13 +68,9 @@ func errorEncoder(ctx context.Context, err error, w http.ResponseWriter) {
 		json.NewEncoder(w).Encode(vErr)
 	}  else {
 		body := []byte(err.Error())
-		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-		_, err := w.Write(body)
-		if err != nil {
-			json.NewEncoder(w).Encode(&openapi3filter.ValidationError{
-				Status: code,
-				Title: "internal server error",
-			})
-		}
+		json.NewEncoder(w).Encode(&openapi3filter.ValidationError{
+			Status: 500,
+			Title:string(body),
+		})
 	}
 }
