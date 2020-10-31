@@ -1,8 +1,9 @@
-hello:
-	echo "Hello"
 
 build:
-	go build -o bin/main main.go
+	go build ./pkg
 
-run:
-	go run main.go
+test:
+	go test ./pkg
+
+run-example:
+	go run examples/server.go
