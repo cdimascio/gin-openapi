@@ -4,5 +4,4 @@ go:
   - 1.14.x
 
 script:
-  make build
-  make test
+  - make build test
