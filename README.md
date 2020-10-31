@@ -1,6 +1,6 @@
 ## gin-openapi
 
-Automatically validate API requests against an OpenAPI 3 spec. 
+Automatically validates API requests against an OpenAPI 3 spec. 
 
 ## Usage
 ```go
