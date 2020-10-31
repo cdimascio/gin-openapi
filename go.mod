@@ -1,4 +1,4 @@
-module github.com/cdimascio/go-oas
+module github.com/cdimascio/gin-openapi
 
 go 1.14
 
